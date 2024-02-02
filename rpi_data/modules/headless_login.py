@@ -3,11 +3,12 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support.ui import WebDriverWait 
-from selenium.webdriver.support import expected_conditions as EC 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
 import sys
+
 
 # Remember to add enviromental variables named rcsid and rcspw with your account info!!!
 #
@@ -25,33 +26,36 @@ import sys
 
 def login(driver):
     URL = "http://sis.rpi.edu"
-    driver.get(URL) # uses a selenium webdriver to go to the sis website, which then redirects to the rcs auth website
-    username_box = driver.find_element(by=By.NAME, value = "j_username") # creates a variable which contains an element type, so that we can interact with it, j_username is the username text box
-    password_box = driver.find_element(by=By.NAME, value = "j_password") # j_password is the password box
-    submit = driver.find_element(by=By.NAME, value = "_eventId_proceed") # _eventId_proceed is the submit button
+    driver.get(URL)  # uses a selenium webdriver to go to the sis website, which then redirects to the rcs auth website
+    username_box = driver.find_element(by=By.NAME,
+                                       value="j_username")  # creates a variable which contains an element type, so that we can interact with it, j_username is the username text box
+    password_box = driver.find_element(by=By.NAME, value="j_password")  # j_password is the password box
+    submit = driver.find_element(by=By.NAME, value="_eventId_proceed")  # _eventId_proceed is the submit button
     username = os.environ.get("rcsid", "NONEFOUND")
     password = os.environ.get("rcspw", "NONEFOUND")
     if (username == "NONEFOUND" or password == "NONEFOUND"):
         print("username or password not found, check environment variables or input them manually")
         username = input("Enter username: ")
         password = input("Enter password: ")
-    username_box.send_keys(username) # enters the username
-    password_box.send_keys(password) # enters the password
-    submit.click() # click the submit button
-    while ("duosecurity" not in driver.current_url): # if you entered details incorrectly, the loop will be entered as you aren't on the duo verfication website (redo what we did before)
+    username_box.send_keys(username)  # enters the username
+    password_box.send_keys(password)  # enters the password
+    submit.click()  # click the submit button
+    while (
+            "duosecurity" not in driver.current_url):  # if you entered details incorrectly, the loop will be entered as you aren't on the duo verfication website (redo what we did before)
         print("User or Password Incorrect.")
-        username_box = driver.find_element(by=By.NAME, value = "j_username") # we have to redefine the variables because the webpage reloads
-        password_box = driver.find_element(by=By.NAME, value = "j_password")
-        submit = driver.find_element(by=By.NAME, value = "_eventId_proceed")
+        username_box = driver.find_element(by=By.NAME,
+                                           value="j_username")  # we have to redefine the variables because the webpage reloads
+        password_box = driver.find_element(by=By.NAME, value="j_password")
+        submit = driver.find_element(by=By.NAME, value="_eventId_proceed")
         username = input("Enter Username: ")
         password = input("Enter Password: ")
-        username_box.clear() # the username box by default has your previous username entered, so we clear it
+        username_box.clear()  # the username box by default has your previous username entered, so we clear it
         username_box.send_keys(username)
         password_box.send_keys(password)
         submit.click()
-    while len(driver.find_elements(By.XPATH, '/html/body/div/div/div[1]/div/div[2]/div[7]/a'))==0:
+    while len(driver.find_elements(By.XPATH, '/html/body/div/div/div[1]/div/div[2]/div[7]/a')) == 0:
         time.sleep(.1)
-    options  = driver.find_element(By.XPATH, '/html/body/div/div/div[1]/div/div[2]/div[7]/a')
+    options = driver.find_element(By.XPATH, '/html/body/div/div/div[1]/div/div[2]/div[7]/a')
     options.click()
     while len(driver.find_elements(By.XPATH, '/html/body/div/div/div[1]/div/div[1]/ul/li[1]/a')) == 0:
         time.sleep(.1)
@@ -59,13 +63,16 @@ def login(driver):
     duo_option.click()
     while len(driver.find_elements(By.XPATH, '/html/body/div/div/div[1]/div/div[2]/div[3]')) == 0:
         time.sleep(.1)
-    print("Your DUO code: "+ driver.find_element(by= By.XPATH, value = "/html/body/div/div/div[1]/div/div[2]/div[3]").text) # print the duo code
-    while len(driver.find_elements(By.XPATH, '//*[@id="trust-browser-button"]'))==0: # we need to press the trust browser button, so we wait until that shows up
+    print("Your DUO code: " + driver.find_element(by=By.XPATH,
+                                                  value="/html/body/div/div/div[1]/div/div[2]/div[3]").text)  # print the duo code
+    while len(driver.find_elements(By.XPATH,
+                                   '//*[@id="trust-browser-button"]')) == 0:  # we need to press the trust browser button, so we wait until that shows up
         time.sleep(.1)
-    trust_button = driver.find_element(By.XPATH, '//*[@id="trust-browser-button"]') #find and click it
+    trust_button = driver.find_element(By.XPATH, '//*[@id="trust-browser-button"]')  # find and click it
     trust_button.click()
     time.sleep(3)
-    if (driver.current_url == "https://sis.rpi.edu/rss/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu"): # check if we're in the right place
+    if (
+            driver.current_url == "https://sis.rpi.edu/rss/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu"):  # check if we're in the right place
         return "Success"
     else:
         print("login failed")

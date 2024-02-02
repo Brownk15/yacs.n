@@ -15,6 +15,7 @@ import selenium
 import pdb
 import os
 
+
 # COMMON PONTS OF ERROR:
 # 
 # - If Login fails, check the headless_login file
@@ -28,22 +29,22 @@ def courseUpdate(driver, term, courses):
     full_info = list()
     url = "https://sis.rpi.edu/rss/bwskfcls.p_sel_crse_search"
     driver.get(url)
-    select = Select(driver.find_element(by=By.ID, value = "term_input_id"))
+    select = Select(driver.find_element(by=By.ID, value="term_input_id"))
     basevalue = parser.genBasevalue(term)
     select.select_by_value(str(basevalue))
-    driver.find_element(by = By.XPATH, value = "/html/body/div[3]/form/input[2]").click()
-    subject_select = Select(driver.find_element(by=By.XPATH, value = '//*[@id="subj_id"]'))
+    driver.find_element(by=By.XPATH, value="/html/body/div[3]/form/input[2]").click()
+    subject_select = Select(driver.find_element(by=By.XPATH, value='//*[@id="subj_id"]'))
     subjects = subject_select.options
     key = str(basevalue)[:4] + "-"
     for i in range(len(subjects)):
         subject_select.select_by_index(i)
-        driver.find_element(by = By.NAME, value = 'SUB_BTN').click()
+        driver.find_element(by=By.NAME, value='SUB_BTN').click()
         info = parser.getCourseInfo(driver, key, schools)
         driver.get(url)
-        select = Select(driver.find_element(by=By.ID, value = "term_input_id"))
+        select = Select(driver.find_element(by=By.ID, value="term_input_id"))
         select.select_by_value(str(basevalue))
-        driver.find_element(by = By.XPATH, value = "/html/body/div[3]/form/input[2]").click()
-        subject_select = Select(driver.find_element(by=By.XPATH, value = '//*[@id="subj_id"]'))
+        driver.find_element(by=By.XPATH, value="/html/body/div[3]/form/input[2]").click()
+        subject_select = Select(driver.find_element(by=By.XPATH, value='//*[@id="subj_id"]'))
         [full_info.append(i) for i in info]
     full_info.sort()
     full_info.reverse()
@@ -63,7 +64,8 @@ def courseUpdate(driver, term, courses):
         full_info[i].addSemester(parser.getStrSemester(full_info[i]))
         if (temp_tuple not in check_dict.keys()):
             check_dict[temp_tuple] = full_info[i]
-            print("Error: course "  + check_dict[temp_tuple].name + " " + check_dict[temp_tuple].crn + " out of order, adding new course")
+            print("Error: course " + check_dict[temp_tuple].name + " " + check_dict[
+                temp_tuple].crn + " out of order, adding new course")
             parser.getReqForClass(check_dict[temp_tuple])
             continue
         new_class = full_info[i].decompose()
@@ -82,11 +84,10 @@ def courseUpdate(driver, term, courses):
         if (list(check_dict.keys())[i] in full_check):
             courses.append(check_dict[list(check_dict.keys())[i]])
         else:
-            print("removed CRN: "+ list(check_dict.keys())[i][0])
-    
+            print("removed CRN: " + list(check_dict.keys())[i][0])
+
     courses.sort()
     return courses
-
 
 
 if __name__ == "__main__":
@@ -137,5 +138,3 @@ if __name__ == "__main__":
         i += 1
         print("Update # " + str(i) + " Finished")
         time.sleep(60)
-
-
